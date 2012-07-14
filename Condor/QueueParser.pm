@@ -75,12 +75,12 @@ sub load_schedds_xml {
 		}
 		if ($line =~ m/\<classads\>/) {
 			# New scheed, record previous in the map and reset everything
-			$self->{'schedds_map'}{$schedd}{'xml'} = \@submitter_xml;
+			$schedds_map{$schedd}{'xml'} = \@submitter_xml;
 			@submitter_xml = ();
 		}
 		push(@submitter_xml, $line);
 	}	
-	return $self->{'schedds_map'};
+	return %schedds_map;
 }
 =pod
 =head2 convert_to_compatible_xml
@@ -95,13 +95,15 @@ Afterwards, it will contain what I call "more compatible" XML :
 =cut
 sub convert_to_compatible_xml {
 	my $self = shift;
+	my $schedds_map_href = shift;
+	my %schedds_map = %{$schedds_map_href};
 
-	foreach my $schedd (keys %{$self->{'schedds_map'}}) {
+	foreach my $schedd (keys %schedds_map) {
 		
-		die("There's no XML in the Condor::QueueParser object, verify") if not $self->{'schedds_map'}{$schedd}{'xml'};
+		die("There's no XML in the provided schedds_map , verify") if not $schedds_map{$schedd}{'xml'};
 		my @real_xml=();
 
-		 foreach my $line  (@{$self->{'schedds_map'}{$schedd}{'xml'}}) {
+		 foreach my $line  (@{$schedds_map{$schedd}{'xml'}}) {
 			 chomp $line;	
 			 
 			 #</x509userproxy>    <a n="GridMonitorJob"><b v="t"/></a> <GratiaJobOrigin>
@@ -118,11 +120,11 @@ sub convert_to_compatible_xml {
 			 }
 		 }
 
-		$self->{'schedds_map'}{$schedd}{'xml'} = \@real_xml;		
+		$schedds_map{$schedd}{'xml'} = \@real_xml;		
 		# my $job_data = XMLin($xml);
 		# $self->{'schedds_map'}{$schedd}{'href'} = $job_data;	
 	}
-	#return $self->{'schedds_map'}{$schedd}{'href'};
+	return %schedds_map;
 }
 
 =pod
@@ -135,14 +137,16 @@ with a Perl equivalent multilevel hash, which will be the native format to Perl 
 
 sub xml_to_hrefs{
 	my $self = shift;
+	my $schedds_map_href = shift;
+	my %schedds_map = %{$schedds_map_href};
 	
-	foreach my $schedd (keys %{$self->{'schedds_map'}}) {
-		die ('provide an xml in {schedds_map}{$schedd}{xml} ') if not defined $self->{'schedds_map'}{$schedd}{'xml'} ;
-		my $xml = "@{$self->{'schedds_map'}{$schedd}{'xml'}}";
+	foreach my $schedd (keys %schedds_map) {
+		die ('provide an xml in %schedds_map{$schedd}{xml} ') if not defined $schedds_map{$schedd}{'xml'} ;
+		my $xml = "@{$schedds_map{$schedd}{'xml'}}";
 		my $job_data = XMLin($xml);
-		$self->{'schedds_map'}{$schedd}{'href'} = $job_data;	
+		$schedds_map{$schedd}{'href'} = $job_data;	
 	}
-	
+	return %schedds_map;
 }
 	
 	
@@ -159,7 +163,10 @@ Maybe the most useful way to use it is :
 
 sub schedd_json {
 	my $self = shift;
+	my $schedds_map_href = shift;
+	my %schedds_map = %{$schedds_map_href};
 	my $schedd = shift;
+	
 	die("Which schedd?") if not $schedd;
 	die("Come on, ask me something that exists, run xml_to_hashrefs") if not $self->{'schedds_map'}{$schedd}{'href'};
 	my $coder = JSON::XS->new->ascii->pretty->allow_nonref;
