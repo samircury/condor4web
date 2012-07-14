@@ -122,7 +122,7 @@ sub convert_to_compatible_xml {
 		# my $job_data = XMLin($xml);
 		# $self->{'schedds_map'}{$schedd}{'href'} = $job_data;	
 	}
-	return $self->{'schedds_map'}{$schedd}{'href'};
+	#return $self->{'schedds_map'}{$schedd}{'href'};
 }
 
 =pod
