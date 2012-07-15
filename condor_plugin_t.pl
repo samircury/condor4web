@@ -16,25 +16,25 @@ my $cparser = Condor::QueueParser->new();
 
 ok($cparser, 'Condor::QueueParser instance ok');
 
-$cparser->load_schedds_xml(\@condor_q);
+my %schedds_map = $cparser->load_schedds_xml(\@condor_q);
 
-ok (scalar(keys %{$cparser->{'schedds_map'}}) == 2, "We got 2 schedulers here");
+ok (scalar(keys %schedds_map) == 2, "We got 2 schedulers here");
 
-foreach my $schedd (keys %{$cparser->{'schedds_map'}}) {
-	ok($cparser->{'schedds_map'}{$schedd}{'xml'}, "Got an xml for $schedd");
+foreach my $schedd (keys %schedds_map) {
+	ok($schedds_map{$schedd}{'xml'}, "Got an xml for $schedd");
 
 }
 
-$cparser->convert_to_compatible_xml();
-$cparser->xml_to_hrefs();
+%schedds_map = $cparser->convert_to_compatible_xml(\%schedds_map);
+%schedds_map = $cparser->xml_to_hrefs(\%schedds_map);
 
-foreach my $schedd (keys %{$cparser->{'schedds_map'}}) {
-	ok($cparser->{'schedds_map'}{$schedd}{'href'}, "Got a perl href for $schedd");
+foreach my $schedd (keys %schedds_map) {
+	ok($schedds_map{$schedd}{'href'}, "Got a perl href for $schedd");
 }
 
 
- foreach my $schedd (keys %{$cparser->{'schedds_map'}}) {
-	ok(length($cparser->schedd_json($schedd)) > 2000,  "JSON Length is big enough to contain something relevant");
+ foreach my $schedd (keys %schedds_map) {
+	ok(length($cparser->schedd_json(\%schedds_map, $schedd)) > 2000,  "JSON Length is big enough to contain something relevant");
  }
 
 
