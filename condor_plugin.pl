@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-#use strict;
-#use warnings;
+use strict;
+use warnings;
 use Data::Dumper;
 use Storable::CouchDB;
 use Condor::QueueParser;
@@ -12,8 +12,6 @@ my @condor_q = <FH>;
 close(FH);
 
 
-my @submitter_xml;
-
 sub main {
     
     my %schedds_map;
@@ -21,12 +19,8 @@ sub main {
     %schedds_map = $condor_parser->load_schedds_xml(\@condor_q);
     %schedds_map = $condor_parser->convert_to_compatible_xml(\%schedds_map);
     %schedds_map = $condor_parser->xml_to_hrefs(\%schedds_map);
-    add_generic_fields(\%schedds_maps);
+    add_generic_fields(\%schedds_map);
     populate_couch(\%schedds_map);
-	
-	#%schedds_map = parse_all_schedds_xml(@condor_q);
-	
-	#xml_to_hashrefs(\%schedds_map);
 	
 }
 
@@ -45,13 +39,13 @@ sub add_generic_fields {
 	    '6'	=> 'submission_err'
 	};
 	foreach my $schedd (keys %schedds_map) {
-	    foreach my $job (@{$schedds_map->{$schedd}{'href'}{'c'}}) {
+	    foreach my $job (@{$schedds_map{$schedd}{'href'}{'c'}}) {
 		# Make assignment of specific to generic job attributes
 		# Those have to be : submit_time, local_user, dn, status
 		$job->{'dn'} = $job->{'x509userproxysubject'};
 		# my $user = split('@', $job{'User'}{'s'});
 		# $job{'local_user'} = $user[0];
-		# $job{'status'} = $condor_state_map{$job{'JobStatus'}{'i'}};
+		$job->{'status'} = $condor_state_map{$job->{'JobStatus'}};
 		# $job{'status'} = ; 
 		    
 	    }
@@ -64,7 +58,7 @@ sub populate_couch {
 	my $schedds_map_href = shift;
 	my %schedds_map = %{$schedds_map_href};
 	
-	my $couch =  Storable::CouchDB->new('uri' => 'http://samircury.iriscouch.com', 'db' => 'teste5' );
+	my $couch =  Storable::CouchDB->new('uri' => 'http://samircury.iriscouch.com', 'db' => 'teste6' );
 	foreach my $schedd (keys %schedds_map) {
 	    foreach my $job (@{$schedds_map{$schedd}{'href'}{'c'}}) {		
 		my $global_jobid = $job->{'GlobalJobId'};
