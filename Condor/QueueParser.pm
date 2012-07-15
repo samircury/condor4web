@@ -168,9 +168,9 @@ sub schedd_json {
 	my $schedd = shift;
 	
 	die("Which schedd?") if not $schedd;
-	die("Come on, ask me something that exists, run xml_to_hashrefs") if not $self->{'schedds_map'}{$schedd}{'href'};
+	die('Come on, ask me something that exists, populate $schedds_map{$schedd}') if not $schedds_map{$schedd}{'href'};
 	my $coder = JSON::XS->new->ascii->pretty->allow_nonref;
-	my $json = $coder->encode ($self->{'schedds_map'}{$schedd}{'href'});
+	my $json = $coder->encode($schedds_map{$schedd}{'href'});
 	return $json;
 }
 
