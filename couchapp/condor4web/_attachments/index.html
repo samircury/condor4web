@@ -4,9 +4,11 @@
     <title>My New CouchApp</title>
     <!--link rel="stylesheet" href="style/main.css" type="text/css"-->
     <script src="http://yui.yahooapis.com/3.7.2/build/yui/yui-min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>          
+
   </head>
   <body class="yui3-skin-sam">
-    <div id="account"></div>
+
 
     <h1>Condor4Web</h1>
 
@@ -21,8 +23,29 @@
   <script type="text/javascript" charset="utf-8">
     $.couch.app(function(app) {
 
-        var what = app.view('jobsPerDNUser', {'reduce' : true, 'group_level' : 2});
-        console.log(what);
+       // NON WORKING VERSION. I'M PUBLISHING THE DAMN THING SO PEOPLE CAN HELP ME. NOT THAT I'M NOT CAPABLE OF BUT I HAVE IN AVERAGE 2 HOURS PER WEEK  
+        //TO WORK ON THIS. ALSO I'M NOT A WEBDESIGNER, CRITICS WILL ONLY BE ACCEPTED ALONG WITH PULL REQUESTS.
+
+
+        // VTNC, era pra ser assim mas o FDP do couchapp e tao bem documentado que nenhum filho da puta sabe o que sao e como se passam as porras das options, entao o babaca aqui passou o tempo livre de 2 dias procurando e mandou se fuder, vou meter um jquery com a URL e foda-se. Tomar no cu, fica fazendo tutorial basico de merda e quer que eu seja produtivo NAO DOCUMENTANDO o caralho da API $.couch.app. So cheguei no ponto que cheguei porque tive que console.log a porra do objeto e ficar lendo o codigo que nem um babaca.
+        //app.view('jobsPerDNUser', {'reduce' : true, success: function(json) {
+        //    console.log(json);               
+        //        }}); 
+        //console.log($.couch);
+        data = $.get("_view/jobsPerDNUser", { reduce: "true", group_level: "2" });
+
+
+        var view = data.responseText;
+//        console.log(view);
+
+//        for (var row in view.rows) {
+//           userData = view.rows[row];
+           // userData = data.key;
+           // userJobs = data.values;
+//            console.log(userData['key']);
+ //           console.log(userData['value']);
+  //       } 
+
 
         YUI().use('datatable', function (Y) {
             // DataTable is available and ready for use. Add implementation
@@ -48,10 +71,6 @@
 
         });
 
-      $("#account").evently("account", app);
-      $("#profile").evently("profile", app);
-      $.evently.connect("#account","#profile", ["loggedIn","loggedOut"]);
-      $("#items").evently("items", app);
     });
   </script>
   </body>
